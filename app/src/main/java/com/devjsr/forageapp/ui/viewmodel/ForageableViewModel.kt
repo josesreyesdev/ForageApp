@@ -52,16 +52,16 @@ class ForageableViewModel( private val forageableDao: ForageableDao): ViewModel(
         }
     }
 
-    fun isvalidEntry( name: String, address: String): Boolean {
+    fun isValidEntry( name: String, address: String): Boolean {
         return name.isNotBlank() && address.isNotBlank()
     }
 
+    //Recuperando Forageable por ID
     fun retrievedForageable(id: Long): LiveData<Forageable> = forageableDao.getForageable(id).asLiveData()
 }
 
 class ForageableViewModelFactory(private val forageableDao: ForageableDao): ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        //return super.create(modelClass)
         if (modelClass.isAssignableFrom(ForageableViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return ForageableViewModel(forageableDao) as T

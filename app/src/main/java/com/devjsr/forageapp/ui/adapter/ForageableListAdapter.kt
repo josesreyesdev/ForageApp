@@ -12,7 +12,7 @@ class ForageableListAdapter(
     private val clickListener: (Forageable) -> Unit
 ) : ListAdapter<Forageable, ForageableListAdapter.ForageableViewHolder>(DiffCallback){
 
-    class ForageableViewHolder( private var binding: ListItemForageableBinding) :
+    class ForageableViewHolder( private var binding: ListItemForageableBinding):
         RecyclerView.ViewHolder(binding.root) {
 
             fun bind( forageable: Forageable) {

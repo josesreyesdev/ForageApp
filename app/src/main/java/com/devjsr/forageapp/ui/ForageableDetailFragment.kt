@@ -10,27 +10,32 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.devjsr.forageapp.BaseApplication
 import com.devjsr.forageapp.R
 import com.devjsr.forageapp.databinding.FragmentForageableDetailBinding
 import com.devjsr.forageapp.model.Forageable
 import com.devjsr.forageapp.ui.viewmodel.ForageableViewModel
+import com.devjsr.forageapp.ui.viewmodel.ForageableViewModelFactory
 
 
 class ForageableDetailFragment : Fragment() {
 
     private val navigationArgs: ForageableDetailFragmentArgs by navArgs()
 
-    private val viewModel: ForageableViewModel by activityViewModels()
+    private val viewModel: ForageableViewModel by activityViewModels {
+        ForageableViewModelFactory(
+            (activity?.application as BaseApplication).database.forageableDao()
+        )
+    }
 
     private lateinit var forageable : Forageable
 
     private var _binding: FragmentForageableDetailBinding? = null
     private val binding get() = _binding!!
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _binding = FragmentForageableDetailBinding.inflate(inflater, container, false)
         return binding.root
@@ -40,7 +45,10 @@ class ForageableDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val id = navigationArgs.id
-
+        viewModel.retrievedForageable(id).observe(viewLifecycleOwner) { selectedForageable ->
+            forageable = selectedForageable
+            bindForageable()
+        }
     }
 
     private fun bindForageable() {

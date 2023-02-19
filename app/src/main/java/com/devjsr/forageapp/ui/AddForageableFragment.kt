@@ -9,10 +9,12 @@ import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.devjsr.forageapp.BaseApplication
 import com.devjsr.forageapp.R
 import com.devjsr.forageapp.databinding.FragmentAddForageableBinding
 import com.devjsr.forageapp.model.Forageable
 import com.devjsr.forageapp.ui.viewmodel.ForageableViewModel
+import com.devjsr.forageapp.ui.viewmodel.ForageableViewModelFactory
 
 class AddForageableFragment : Fragment() {
 
@@ -23,27 +25,34 @@ class AddForageableFragment : Fragment() {
 
     private lateinit var forageable: Forageable
 
-    private val viewModel : ForageableViewModel by activityViewModels()
-
+    private val viewModel : ForageableViewModel by activityViewModels {
+        ForageableViewModelFactory(
+            (activity?.application as BaseApplication).database.forageableDao()
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentAddForageableBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val id = navigationArgs.id
-
-        if (id > 0){
-
-
-            binding.deleteBtn.visibility = View.VISIBLE
-            binding.deleteBtn.setOnClickListener {
-                deleteForage(forageable)
+        if (id > 0) {
+            viewModel.retrievedForageable(id).observe(viewLifecycleOwner) {selectedForageable ->
+                forageable = selectedForageable
+                bindForageable(forageable)
+            }
+            binding.apply {
+                deleteBtn.visibility = View.VISIBLE
+                deleteBtn.setOnClickListener {
+                    deleteForage(forageable)
+                }
             }
         } else {
             binding.saveBtn.setOnClickListener {
@@ -100,7 +109,7 @@ class AddForageableFragment : Fragment() {
         }
     }
 
-    private fun isValidEntry() = viewModel.isvalidEntry(
+    private fun isValidEntry() = viewModel.isValidEntry(
         binding.nameInput.text.toString(),
         binding.locationAddressInput.text.toString()
     )
